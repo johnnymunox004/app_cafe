@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "expo_cafe_app",
+    "name": "expocafeapp",
     "slug": "expo_cafe_app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.expo_cafe_app"
     },
     "web": {
       "bundler": "metro",
@@ -32,10 +33,39 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#ffffff"
+        }
+      ],
+      "expo-asset",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "La aplicación necesita acceso a la cámara para analizar los granos de café."
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "build": {
+      "production": {
+        "android": {
+          "buildType": "apk"
+        },
+        "ios": {
+          "buildType": "archive"
+        }
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "727c8216-f4fb-409b-81e5-8dbaab678d81"
+      }
     }
   }
 }
