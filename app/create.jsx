@@ -6,15 +6,14 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Dimensions,
   TextInput,
   Alert,
+  Dimensions,
 } from "react-native";
 import { RadarChart } from "@salmonco/react-native-radar-chart";
 import generatePDF from "../components/PDFGenerator";
 import ViewShot from "react-native-view-shot";
 
-// Componente para la barra de progreso
 const ProgressBar = ({ currentStep, totalSteps }) => (
   <View style={styles.progressContainer}>
     {[...Array(totalSteps)].map((_, index) => (
@@ -29,11 +28,9 @@ const ProgressBar = ({ currentStep, totalSteps }) => (
   </View>
 );
 
-// Paso 1: Evaluación básica
 const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
   const viewShotRef = useRef(null);
 
-  // Efecto para capturar cuando el componente esté listo
   useEffect(() => {
     const captureChart = async () => {
       try {
@@ -49,11 +46,9 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
         console.error('Error capturando el gráfico:', error);
       }
     };
-
     captureChart();
-  }, [ratings]); // Se ejecutará cuando cambien los ratings
+  }, [ratings]);
 
-  // Reutilizamos el componente de botones de calificación anterior
   const RatingButtons = ({ name, value, onValueChange }) => (
     <View style={styles.ratingCard}>
       <View style={styles.ratingHeader}>
@@ -143,7 +138,6 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
   );
 };
 
-// Paso 2: Evaluación de sabores y aromas
 const FlavorEvaluation = ({ flavors, updateFlavors }) => {
   const flavorOptions = [
     "Chocolate", "Nueces", "Caramelo", "Frutal", "Cítrico", 
@@ -182,21 +176,24 @@ const FlavorEvaluation = ({ flavors, updateFlavors }) => {
   );
 };
 
-// Paso 3: Información del café
 const CoffeeInfo = ({ info, updateInfo }) => (
   <ScrollView style={styles.infoContainer}>
     <View style={styles.infoCard}>
-      <Text style={styles.infoLabel}>Nombre del Café</Text>
+      <Text style={styles.infoLabel}>
+        Nombre del Café <Text style={styles.required}>*</Text>
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, !info.name && styles.inputError]}
         value={info.name}
         onChangeText={(text) => updateInfo({...info, name: text})}
         placeholder="Ej: Café de Colombia"
       />
       
-      <Text style={styles.infoLabel}>Origen</Text>
+      <Text style={styles.infoLabel}>
+        Origen <Text style={styles.required}>*</Text>
+      </Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, !info.origin && styles.inputError]}
         value={info.origin}
         onChangeText={(text) => updateInfo({...info, origin: text})}
         placeholder="Ej: Huila, Colombia"
@@ -231,7 +228,7 @@ export default function Create() {
     notes: '',
   });
   const [chartUri, setChartUri] = useState(null);
-  
+
   const steps = [
     {
       title: "Evaluación Básica",
@@ -257,7 +254,24 @@ export default function Create() {
     }
   ];
 
+  const isFormValid = (step) => {
+    switch(step) {
+      case 2:
+        return info.name.trim() !== '' && info.origin.trim() !== '';
+      default:
+        return true;
+    }
+  };
+
   const handleNext = async () => {
+    if (!isFormValid(currentStep)) {
+      Alert.alert(
+        'Campos Requeridos',
+        'Por favor complete los campos obligatorios marcados con *'
+      );
+      return;
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -265,10 +279,7 @@ export default function Create() {
         if (!chartUri) {
           throw new Error('No se ha capturado el gráfico');
         }
-
-        // Generar PDF usando el URI capturado
         const result = await generatePDF(chartUri, { ratings, flavors, info });
-        
         if (!result.success) {
           throw new Error('Error al generar el PDF');
         }
@@ -309,8 +320,12 @@ export default function Create() {
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={styles.nextButton}
+          style={[
+            styles.nextButton,
+            !isFormValid(currentStep) && styles.nextButtonDisabled
+          ]}
           onPress={handleNext}
+          disabled={!isFormValid(currentStep)}
         >
           <Text style={styles.nextButtonText}>
             {currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
@@ -379,6 +394,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginLeft: 8,
   },
+  nextButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+    opacity: 0.7,
+  },
   backButtonText: {
     color: "#FF9432",
     fontSize: 15,
@@ -391,7 +410,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
   },
-  // Estilos para los componentes de evaluación básica
   chartCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
@@ -407,9 +425,6 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
   },
-  // ... (resto de estilos del rating)
-
-  // Estilos para la evaluación de sabores
   flavorContainer: {
     flex: 1,
   },
@@ -445,7 +460,6 @@ const styles = StyleSheet.create({
   flavorChipTextSelected: {
     color: "#FFFFFF",
   },
-  // Estilos para la información del café
   infoContainer: {
     flex: 1,
   },
@@ -469,13 +483,16 @@ const styles = StyleSheet.create({
     borderColor: "#E0E0E0",
     fontSize: 15,
   },
+  inputError: {
+    borderColor: '#FF4444',
+  },
   textArea: {
     height: 100,
     textAlignVertical: 'top',
   },
   ratingHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space",
     alignItems: "center",
     marginBottom: 12,
   },

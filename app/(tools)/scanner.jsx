@@ -14,6 +14,7 @@ import {
 import Barrita from "../../components/barrita";
 import * as Progress from 'react-native-progress';
 import { modelManager } from '../../utils/model-manager';
+import { GlobalStyles, COLORS, SIZES } from '../../utils/styles';
 
 export default function CoffeeBeanScanner() {
   const [isTfReady, setIsTfReady] = useState(false);
@@ -120,221 +121,89 @@ export default function CoffeeBeanScanner() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={GlobalStyles.container}>
       <LinearGradient
-        colors={['#f5f7fa', '#c3cfe2']}
-        style={styles.gradient}
+        colors={[COLORS.background, '#E5E5E5']}
+        style={GlobalStyles.gradientContainer}
       >
-        {isDownloading ? (
-          <View style={styles.downloadContainer}>
-            <Text style={styles.downloadText}>
-              Descargando modelo para uso offline...
+        <Text style={GlobalStyles.title}>Análisis de Tostión</Text>
+        
+        <View style={GlobalStyles.imageContainer}>
+          {image ? (
+            <Image source={{ uri: image }} style={GlobalStyles.image} />
+          ) : (
+            <View style={[GlobalStyles.card, styles.placeholder]}>
+              <Text style={GlobalStyles.text}>Sin imagen</Text>
+            </View>
+          )}
+        </View>
+
+        {isAnalyzing && (
+          <View style={GlobalStyles.progressContainer}>
+            <Progress.Bar 
+              progress={progress} 
+              width={null} 
+              color={COLORS.accent}
+              style={styles.progressBar}
+            />
+            <Text style={GlobalStyles.text}>
+              {Math.round(progress * 100)}% - {statusMessage}
             </Text>
-            <ActivityIndicator size="large" color="#FF9432" />
+            <ActivityIndicator color={COLORS.accent} />
           </View>
-        ) : (
-          <>
-            <Text style={styles.title}>Análisis de Tostión</Text>
-            
-            <Text style={styles.statusText}>
-              Estado: {isTfReady ? '✅ Listo' : '⏳ Inicializando...'}
-            </Text>
-            
-            <View style={styles.imageContainer}>
-              {image ? (
-                <Image source={{ uri: image }} style={styles.image} />
-              ) : (
-                <View style={styles.placeholder}>
-                  <Text style={styles.placeholderText}>Sin imagen</Text>
-                </View>
-              )}
-            </View>
-
-            {isAnalyzing && (
-              <View style={styles.progressContainer}>
-                <Progress.Bar 
-                  progress={progress} 
-                  width={null} 
-                  color="#FF9432"
-                  borderWidth={0}
-                  unfilledColor="#f0f0f0"
-                  height={10}
-                  style={styles.progressBar}
-                />
-                <Text style={styles.progressText}>
-                  {Math.round(progress * 100)}% - {statusMessage}
-                </Text>
-                <ActivityIndicator color="#FF9432" />
-              </View>
-            )}
-
-            <TouchableOpacity 
-              onPress={takePicture}
-              disabled={!isTfReady || isAnalyzing}
-            >
-              <LinearGradient
-                colors={['#FF9432', '#FF6B00']}
-                style={[styles.button, (!isTfReady || isAnalyzing) && styles.buttonDisabled]}
-              >
-                <Text style={styles.buttonText}>
-                  {isAnalyzing ? 'Analizando...' : 'Tomar Foto'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            {analysis && (
-              <View style={styles.analysisContainer}>
-                <Text style={styles.analysisTitle}>Resultados del Análisis</Text>
-                <Text style={styles.analysisText}>Nivel de Tostión: {analysis.roastLevel}</Text>
-                <Text style={styles.analysisText}>Recomendación: {analysis.recommendation}</Text>
-                <View style={styles.colorBox} backgroundColor={`rgb(${analysis.colorValues.red}, ${analysis.colorValues.green}, ${analysis.colorValues.blue})`} />
-              </View>
-            )}
-
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoTitle}>Instrucciones:</Text>
-              <Text style={styles.infoText}>1. Coloca los granos sobre fondo blanco</Text>
-              <Text style={styles.infoText}>2. Asegura buena iluminación</Text>
-              <Text style={styles.infoText}>3. Mantén la cámara estable</Text>
-              <Text style={styles.infoText}>4. Toma la foto a 20cm de distancia</Text>
-            </View>
-          </>
         )}
+
+        <TouchableOpacity 
+          onPress={takePicture}
+          disabled={!isTfReady || isAnalyzing}
+        >
+          <LinearGradient
+            colors={[COLORS.accent, COLORS.secondary]}
+            style={[GlobalStyles.button, (!isTfReady || isAnalyzing) && styles.buttonDisabled]}
+          >
+            <Text style={GlobalStyles.buttonText}>
+              {isAnalyzing ? 'Analizando...' : 'Tomar Foto'}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {analysis && (
+          <View style={GlobalStyles.card}>
+            <Text style={GlobalStyles.subtitle}>Resultados del Análisis</Text>
+            <Text style={GlobalStyles.text}>Nivel de Tostión: {analysis.roastLevel}</Text>
+            <Text style={GlobalStyles.text}>Recomendación: {analysis.recommendation}</Text>
+            <View style={[styles.colorBox, { backgroundColor: `rgb(${analysis.colorValues.red}, ${analysis.colorValues.green}, ${analysis.colorValues.blue})` }]} />
+          </View>
+        )}
+
+        <View style={GlobalStyles.infoContainer}>
+          <Text style={GlobalStyles.subtitle}>Instrucciones:</Text>
+          <Text style={GlobalStyles.text}>1. Coloca los granos sobre fondo blanco</Text>
+          <Text style={GlobalStyles.text}>2. Asegura buena iluminación</Text>
+          <Text style={GlobalStyles.text}>3. Mantén la cámara estable</Text>
+          <Text style={GlobalStyles.text}>4. Toma la foto a 20cm de distancia</Text>
+        </View>
       </LinearGradient>
-      <Barrita />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
-  },
-  imageContainer: {
-    width: '100%',
-    height: 300,
-    marginBottom: 20,
-    borderRadius: 15,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
   placeholder: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
   },
-  placeholderText: {
-    color: '#666',
-    fontSize: 16,
-  },
-  button: {
-    padding: 15,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  infoContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    padding: 20,
-    borderRadius: 15,
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  analysisContainer: {
-    backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    marginVertical: 15,
-  },
-  analysisTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  analysisText: {
-    fontSize: 16,
-    marginBottom: 5,
-    color: '#666',
-  },
-  colorBox: {
-    width: '100%',
-    height: 50,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  statusText: {
-    textAlign: 'center',
-    marginBottom: 10,
-    color: '#666',
+  progressBar: {
+    marginBottom: SIZES.base,
   },
   buttonDisabled: {
     opacity: 0.5,
   },
-  progressContainer: {
-    padding: 15,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  progressBar: {
-    marginBottom: 10,
-  },
-  progressText: {
-    textAlign: 'center',
-    color: '#666',
-    marginBottom: 10,
-  },
-  downloadContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-  },
-  downloadText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
+  colorBox: {
+    width: '100%',
+    height: 50,
+    borderRadius: SIZES.radius,
+    marginTop: SIZES.base,
+  }
 }); 

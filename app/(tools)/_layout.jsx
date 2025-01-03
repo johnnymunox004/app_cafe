@@ -1,46 +1,41 @@
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
+import { COLORS } from '../../utils/styles';
 
-export default function ToolsLayout() {
+export default function Layout() {
   return (
-    <Stack>
+    <Stack
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: COLORS.primary,
+        },
+        headerTintColor: COLORS.white,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
       <Stack.Screen
         name="index"
         options={{
           title: "Herramientas",
-          headerStyle: { backgroundColor: "#42A5F5" },
-          headerTintColor: "#FFF",
         }}
       />
       <Stack.Screen
-        name="calculator"
+        name="create"
         options={{
-          title: "Calculadora",
-          headerStyle: { backgroundColor: "#4CAF50" },
-          headerTintColor: "#FFF",
+          title: "Crear Registro",
         }}
       />
       <Stack.Screen
         name="scanner"
         options={{
-          title: "Escáner",
-          headerStyle: { backgroundColor: "#9C27B0" },
-          headerTintColor: "#FFF",
-        }}
-      />
-      <Stack.Screen
-        name="history"
-        options={{
-          title: "Historial",
-          headerStyle: { backgroundColor: "#2196F3" },
-          headerTintColor: "#FFF",
+          title: "Escáner de Café",
         }}
       />
       <Stack.Screen
         name="map"
         options={{
-          title: "Cafeterías",
-          headerStyle: { backgroundColor: "#795548" },
-          headerTintColor: "#FFF",
+          title: "Mapa de Cafeterías",
         }}
       />
     </Stack>

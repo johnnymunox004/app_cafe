@@ -1,173 +1,107 @@
-import React from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity,
-  Dimensions 
-} from "react-native";
-import { useRouter } from "expo-router";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import Barrita from "../../components/barrita";
+import { Ionicons } from '@expo/vector-icons';
+import { GlobalStyles, COLORS, SIZES, SHADOWS } from '../../utils/styles';
 
-const { width } = Dimensions.get('window');
-
-const features = [
+const tools = [
   {
-    id: 'calculator',
-    name: 'Calculadora',
-    icon: 'calculator',
-    color: ['#4CAF50', '#2E7D32'],
-    description: 'Calcula la proporción perfecta de café y agua'
+    id: 1,
+    title: "Escáner de Granos",
+    description: "Analiza el nivel de tostión de tus granos de café",
+    icon: "scan",
+    route: "/(tools)/scanner",
+    gradient: [COLORS.accent, COLORS.secondary]
   },
   {
-    id: 'scanner',
-    name: 'Escáner',
-    icon: 'camera',
-    color: ['#9C27B0', '#6A1B9A'],
-    description: 'Analiza la calidad de tus granos de café'
+    id: 2,
+    title: "Calculadora de Café",
+    description: "Calcula las proporciones perfectas para tu café",
+    icon: "calculator",
+    route: "/(tools)/calculator",
+    gradient: [COLORS.secondary, COLORS.primary]
   },
   {
-    id: 'history',
-    name: 'Historial',
-    icon: 'chart-bar',
-    color: ['#2196F3', '#1976D2'],
-    description: 'Revisa tu historial de preparaciones'
-  },
-  {
-    id: 'map',
-    name: 'Cafeterías',
-    icon: 'map-marker-alt',
-    color: ['#795548', '#5D4037'],
-    description: 'Encuentra las mejores cafeterías cercanas'
+    id: 3,
+    title: "Mapa de Cafeterías",
+    description: "Encuentra las mejores cafeterías cerca de ti",
+    icon: "map",
+    route: "/(tools)/map",
+    gradient: [COLORS.primary, '#2C1810']
+  }
+  ,  {
+    id: 4,
+    title: "Historial de Catas",
+    description: "mira las catciones que has hecho",
+    icon: "history",
+    route: "/(tools)/history",
+    gradient: [COLORS.primary, '#2C1810']
   }
 ];
 
-export default function Tools() {
-  const router = useRouter();
-
-  const handleCardPress = (id) => {
-    router.push(id);
-  };
-
+export default function ToolsScreen() {
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={GlobalStyles.container}>
       <LinearGradient
-        colors={['#f5f7fa', '#c3cfe2']}
-        style={styles.gradient}
+        colors={[COLORS.background, '#E5E5E5']}
+        style={GlobalStyles.gradientContainer}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Herramientas de Café</Text>
-          <Text style={styles.subtitle}>
-            Todo lo que necesitas para tu experiencia cafetera
-          </Text>
-        </View>
-
-        <View style={styles.cardsContainer}>
-          {features.map((feature) => (
-            <TouchableOpacity
-              key={feature.id}
-              onPress={() => handleCardPress(feature.id)}
-              style={styles.cardWrapper}
-            >
-              <LinearGradient
-                colors={feature.color}
-                style={styles.card}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-              >
-                <View style={styles.iconContainer}>
-                  <FontAwesome5 
-                    name={feature.icon} 
-                    size={30} 
-                    color="white" 
-                  />
-                </View>
-                <Text style={styles.cardTitle}>{feature.name}</Text>
-                <Text style={styles.cardDescription}>
-                  {feature.description}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
+        <Text style={GlobalStyles.title}>Herramientas</Text>
+        
+        <View style={styles.toolsGrid}>
+          {tools.map((tool) => (
+            <Link href={tool.route} key={tool.id} asChild>
+              <TouchableOpacity style={styles.toolCard}>
+                <LinearGradient
+                  colors={tool.gradient}
+                  style={styles.toolGradient}
+                >
+                  <Ionicons name={tool.icon} size={SIZES.extraLarge * 1.5} color={COLORS.white} />
+                  <Text style={styles.toolTitle}>{tool.title}</Text>
+                  <Text style={styles.toolDescription}>{tool.description}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Link>
           ))}
         </View>
       </LinearGradient>
-      <Barrita />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-    minHeight: '100%',
-  },
-  header: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-  },
-  cardsContainer: {
+  toolsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 15,
+    marginTop: SIZES.padding
   },
-  cardWrapper: {
-    width: width / 2 - 20,
-    marginBottom: 20,
+  toolCard: {
+    width: '48%',
+    marginBottom: SIZES.padding,
+    borderRadius: SIZES.radius,
+    overflow: 'hidden',
+    ...SHADOWS.medium
   },
-  card: {
-    padding: 20,
-    borderRadius: 15,
+  toolGradient: {
+    padding: SIZES.padding,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 180,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    aspectRatio: 1,
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  cardTitle: {
-    color: 'white',
-    fontSize: 18,
+  toolTitle: {
+    color: COLORS.white,
+    fontSize: SIZES.medium,
     fontWeight: 'bold',
-    marginBottom: 8,
     textAlign: 'center',
+    marginTop: SIZES.base,
+    marginBottom: SIZES.small
   },
-  cardDescription: {
-    color: 'white',
-    fontSize: 14,
+  toolDescription: {
+    color: COLORS.white,
+    fontSize: SIZES.small,
     textAlign: 'center',
-    opacity: 0.9,
-    lineHeight: 20,
-  },
+    opacity: 0.8
+  }
 });
