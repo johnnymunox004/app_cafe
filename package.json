@@ -31,7 +31,7 @@
     "expo-asset": "~11.0.1",
     "expo-background-fetch": "~13.0.3",
     "expo-blur": "~14.0.1",
-    "expo-camera": "~16.0.10",
+    "expo-camera": "^13.4.4",
     "expo-constants": "~17.0.3",
     "expo-file-system": "~18.0.6",
     "expo-font": "~13.0.2",
