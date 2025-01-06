@@ -9,10 +9,18 @@ import {
   TextInput,
   Alert,
   Dimensions,
+  Share,
 } from "react-native";
 import { RadarChart } from "@salmonco/react-native-radar-chart";
 import generatePDF from "../components/PDFGenerator";
 import ViewShot from "react-native-view-shot";
+import { saveEvaluation, getEvaluations } from '../utils/storage';
+import { useRouter } from 'expo-router';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { COLORS, SIZES } from '../utils/styles';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import { useFocusEffect } from 'expo-router';
 
 const ProgressBar = ({ currentStep, totalSteps }) => (
   <View style={styles.progressContainer}>
@@ -145,74 +153,173 @@ const FlavorEvaluation = ({ flavors, updateFlavors }) => {
   ];
 
   return (
-    <ScrollView style={styles.flavorContainer}>
+    <View>
       <Text style={styles.sectionTitle}>Selecciona los sabores identificados</Text>
       <View style={styles.flavorGrid}>
-        {flavorOptions.map((flavor) => (
-          <TouchableOpacity
-            key={flavor}
-            style={[
-              styles.flavorChip,
-              flavors.includes(flavor) && styles.flavorChipSelected
-            ]}
-            onPress={() => {
-              if (flavors.includes(flavor)) {
-                updateFlavors(flavors.filter(f => f !== flavor));
-              } else {
-                updateFlavors([...flavors, flavor]);
-              }
-            }}
-          >
-            <Text style={[
-              styles.flavorChipText,
-              flavors.includes(flavor) && styles.flavorChipTextSelected
-            ]}>
-              {flavor}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <ScrollView style={styles.flavorContainer}>
+          {flavorOptions.map((flavor) => (
+            <TouchableOpacity
+              key={flavor}
+              style={[
+                styles.flavorChip,
+                flavors.includes(flavor) && styles.flavorChipSelected
+              ]}
+              onPress={() => {
+                if (flavors.includes(flavor)) {
+                  updateFlavors(flavors.filter(f => f !== flavor));
+                } else {
+                  updateFlavors([...flavors, flavor]);
+                }
+              }}
+            >
+              <Text style={[
+                styles.flavorChipText,
+                flavors.includes(flavor) && styles.flavorChipTextSelected
+              ]}>
+                {flavor}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
-const CoffeeInfo = ({ info, updateInfo }) => (
-  <ScrollView style={styles.infoContainer}>
-    <View style={styles.infoCard}>
-      <Text style={styles.infoLabel}>
-        Nombre del Café <Text style={styles.required}>*</Text>
-      </Text>
-      <TextInput
-        style={[styles.input, !info.name && styles.inputError]}
-        value={info.name}
-        onChangeText={(text) => updateInfo({...info, name: text})}
-        placeholder="Ej: Café de Colombia"
-      />
-      
-      <Text style={styles.infoLabel}>
-        Origen <Text style={styles.required}>*</Text>
-      </Text>
-      <TextInput
-        style={[styles.input, !info.origin && styles.inputError]}
-        value={info.origin}
-        onChangeText={(text) => updateInfo({...info, origin: text})}
-        placeholder="Ej: Huila, Colombia"
-      />
+const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, onCreateGroup }) => {
+  const [newGroupName, setNewGroupName] = useState('');
+  const [showNewGroupInput, setShowNewGroupInput] = useState(false);
 
-      <Text style={styles.infoLabel}>Notas</Text>
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        value={info.notes}
-        onChangeText={(text) => updateInfo({...info, notes: text})}
-        placeholder="Notas adicionales sobre el café..."
-        multiline
-        numberOfLines={4}
-      />
+  const handleCreateGroup = () => {
+    if (newGroupName.trim()) {
+      onCreateGroup(newGroupName.trim());
+      setNewGroupName('');
+      setShowNewGroupInput(false);
+    }
+  };
+
+  return (
+    <View style={styles.infoContainer}>
+      <View style={styles.infoCard}>
+        <Text style={styles.infoLabel}>Nombre del Café *</Text>
+        <TextInput
+          style={[styles.input, !info.name && styles.inputError]}
+          value={info.name}
+          onChangeText={(text) => updateInfo('name', text)}
+          placeholder="Nombre del café"
+        />
+
+        <Text style={styles.infoLabel}>Origen *</Text>
+        <TextInput
+          style={[styles.input, !info.origin && styles.inputError]}
+          value={info.origin}
+          onChangeText={(text) => updateInfo('origin', text)}
+          placeholder="País o región de origen"
+        />
+
+        <Text style={styles.infoLabel}>Grupo</Text>
+        <View style={styles.groupContainer}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.groupScroll}
+          >
+            {groups.map((group) => (
+              <TouchableOpacity
+                key={group}
+                style={[
+                  styles.groupTag,
+                  selectedGroup === group && styles.groupTagSelected
+                ]}
+                onPress={() => onGroupChange(group)}
+              >
+                <Text style={[
+                  styles.groupTagText,
+                  selectedGroup === group && styles.groupTagTextSelected
+                ]}>
+                  {group}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={styles.addGroupButton}
+              onPress={() => setShowNewGroupInput(true)}
+            >
+              <Ionicons name="add-circle-outline" size={24} color={COLORS.primary} />
+              <Text style={styles.addGroupText}>Nuevo Grupo</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
+        {showNewGroupInput && (
+          <View style={styles.newGroupContainer}>
+            <TextInput
+              style={styles.input}
+              value={newGroupName}
+              onChangeText={setNewGroupName}
+              placeholder="Nombre del nuevo grupo"
+              autoFocus
+            />
+            <View style={styles.newGroupButtons}>
+              <TouchableOpacity
+                style={styles.newGroupButton}
+                onPress={handleCreateGroup}
+              >
+                <Text style={styles.newGroupButtonText}>Guardar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.newGroupButton, styles.cancelButton]}
+                onPress={() => setShowNewGroupInput(false)}
+              >
+                <Text style={[styles.newGroupButtonText, styles.cancelButtonText]}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        <Text style={styles.infoLabel}>Notas</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={info.notes}
+          onChangeText={(text) => updateInfo('notes', text)}
+          placeholder="Notas adicionales"
+          multiline
+          numberOfLines={4}
+        />
+      </View>
     </View>
-  </ScrollView>
-);
+  );
+};
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const formatRatings = (ratings) => {
+  return Object.entries(ratings)
+    .map(([key, value]) => {
+      const label = {
+        aroma: '👃 Aroma',
+        sabor: '👅 Sabor',
+        acidez: '🍋 Acidez',
+        cuerpo: '💪 Cuerpo',
+        dulzura: '🍯 Dulzura'
+      }[key];
+      return `${label}: ${value}/10`;
+    })
+    .join('\n');
+};
 
 export default function Create() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [ratings, setRatings] = useState({
     aroma: 5,
@@ -228,6 +335,66 @@ export default function Create() {
     notes: '',
   });
   const [chartUri, setChartUri] = useState(null);
+  const [groups, setGroups] = useState(['Favoritos']);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
+  const resetForm = () => {
+    setRatings({
+      aroma: 5,
+      sabor: 5,
+      acidez: 5,
+      cuerpo: 5,
+      dulzura: 5,
+    });
+    setFlavors([]);
+    setInfo({
+      name: '',
+      origin: '',
+      notes: '',
+    });
+    setChartUri(null);
+    setCurrentStep(0);
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        resetForm();
+      };
+    }, [])
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadExistingGroups();
+    }, [])
+  );
+
+  const loadExistingGroups = async () => {
+    try {
+      const evaluations = await getEvaluations();
+      const existingGroups = [...new Set(evaluations.map(item => item.group).filter(Boolean))];
+      
+      // Combinar grupos existentes con los predeterminados
+      const allGroups = [...new Set(['Favoritos', ...existingGroups])];
+      setGroups(allGroups);
+      
+      console.log('Grupos cargados:', allGroups); // Debug
+    } catch (error) {
+      console.error('Error al cargar grupos:', error);
+    }
+  };
+
+  const handleCreateGroup = (newGroup) => {
+    if (newGroup && !groups.includes(newGroup)) {
+      setGroups(prev => [...prev, newGroup]);
+      setSelectedGroup(newGroup);
+    }
+  };
+
+  const handleGroupChange = (group) => {
+    setSelectedGroup(group);
+  };
 
   const steps = [
     {
@@ -249,7 +416,11 @@ export default function Create() {
       title: "Información",
       component: <CoffeeInfo 
         info={info}
-        updateInfo={setInfo}
+        updateInfo={(key, value) => setInfo(prev => ({...prev, [key]: value}))}
+        groups={groups}
+        selectedGroup={selectedGroup}
+        onGroupChange={handleGroupChange}
+        onCreateGroup={handleCreateGroup}
       />
     }
   ];
@@ -263,7 +434,7 @@ export default function Create() {
     }
   };
 
-  const handleNext = async () => {
+  const handleFinish = async () => {
     if (!isFormValid(currentStep)) {
       Alert.alert(
         'Campos Requeridos',
@@ -272,24 +443,59 @@ export default function Create() {
       return;
     }
 
+    try {
+      const evaluationData = {
+        name: info.name,
+        origin: info.origin,
+        notes: info.notes,
+        date: new Date().toISOString(),
+        ratings: ratings,
+        flavors: flavors,
+        chartUri: chartUri,
+        group: selectedGroup,
+      };
+
+      await saveEvaluation(evaluationData);
+
+      Alert.alert(
+        '✨ ¡Evaluación Guardada!',
+        'Tu evaluación ha sido guardada exitosamente',
+        [
+          {
+            text: 'Compartir PDF',
+            onPress: generatePDF,
+            style: 'default'
+          },
+          {
+            text: 'Ver Historial',
+            onPress: () => {
+              resetForm();
+              router.push('/(tools)/history');
+            },
+            style: 'default'
+          },
+          {
+            text: 'Nueva Evaluación',
+            onPress: () => {
+              resetForm();
+              router.replace('/create');
+            },
+            style: 'default'
+          }
+        ]
+      );
+
+    } catch (error) {
+      console.error('Error al guardar la evaluación:', error);
+      Alert.alert('Error', 'No se pudo guardar la evaluación');
+    }
+  };
+
+  const handleNext = async () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      try {
-        if (!chartUri) {
-          throw new Error('No se ha capturado el gráfico');
-        }
-        const result = await generatePDF(chartUri, { ratings, flavors, info });
-        if (!result.success) {
-          throw new Error('Error al generar el PDF');
-        }
-      } catch (error) {
-        console.error('Error al generar el PDF:', error);
-        Alert.alert(
-          'Error',
-          'No se pudo generar el PDF. Por favor intente nuevamente.'
-        );
-      }
+      await handleFinish();
     }
   };
 
@@ -299,7 +505,164 @@ export default function Create() {
     }
   };
 
+  const generatePDF = async () => {
+    if (!isFormValid(currentStep)) {
+      Alert.alert('Error', 'Por favor complete todos los campos requeridos');
+      return;
+    }
+
+    try {
+      const evaluationData = {
+        name: info.name,
+        origin: info.origin,
+        notes: info.notes,
+        date: new Date().toISOString(),
+        ratings: ratings,
+        flavors: flavors,
+        chartUri: chartUri,
+        group: selectedGroup,
+      };
+
+      await saveEvaluation(evaluationData);
+      console.log('Evaluación guardada exitosamente');
+
+      const htmlContent = `
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body {
+                font-family: 'Helvetica';
+                padding: 20px;
+              }
+              .header {
+                text-align: center;
+                color: #FF9432;
+                margin-bottom: 30px;
+              }
+              .section {
+                margin-bottom: 20px;
+              }
+              .rating-item {
+                display: flex;
+                justify-content: space-between;
+                margin: 5px 0;
+                padding: 5px 0;
+                border-bottom: 1px solid #eee;
+              }
+              .flavor-tag {
+                display: inline-block;
+                background-color: #FFF8F1;
+                padding: 5px 10px;
+                margin: 3px;
+                border-radius: 15px;
+                color: #FF9432;
+              }
+              .chart-container {
+                text-align: center;
+                margin: 20px 0;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>☕️ Evaluación de Café</h1>
+            </div>
+
+            <div class="section">
+              <h2>📝 Información General</h2>
+              <p><strong>Nombre:</strong> ${info.name}</p>
+              <p><strong>Origen:</strong> ${info.origin}</p>
+              <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+            </div>
+
+            ${chartUri ? `
+              <div class="chart-container">
+                <img src="${chartUri}" width="300" height="300" />
+              </div>
+            ` : ''}
+
+            <div class="section">
+              <h2>⭐️ Calificaciones</h2>
+              ${Object.entries(ratings)
+                .map(([key, value]) => `
+                  <div class="rating-item">
+                    <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                    <span>${value}/10</span>
+                  </div>
+                `).join('')}
+            </div>
+
+            <div class="section">
+              <h2>🎯 Sabores Identificados</h2>
+              ${flavors.map(flavor => `
+                <span class="flavor-tag">${flavor}</span>
+              `).join('')}
+            </div>
+
+            ${info.notes ? `
+              <div class="section">
+                <h2>📝 Notas</h2>
+                <p>${info.notes}</p>
+              </div>
+            ` : ''}
+          </body>
+        </html>
+      `;
+
+      console.log('Generando PDF...');
+      const { uri } = await Print.printToFileAsync({
+        html: htmlContent,
+        base64: false
+      });
+      console.log('PDF generado:', uri);
+
+      if (!(await Sharing.isAvailableAsync())) {
+        Alert.alert('Error', 'La función de compartir no está disponible');
+        return;
+      }
+
+      await Sharing.shareAsync(uri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Compartir Evaluación de Café',
+        UTI: 'com.adobe.pdf'
+      });
+
+      Alert.alert(
+        '✨ ¡Evaluación Guardada!',
+        'La evaluación se ha guardado y compartido exitosamente',
+        [
+          {
+            text: 'Nueva Evaluación',
+            onPress: () => {
+              resetForm();
+              router.replace('/create');
+            },
+            style: 'default'
+          },
+          {
+            text: 'Ver Historial',
+            onPress: () => {
+              resetForm();
+              router.push('/(tools)/history');
+            },
+            style: 'default'
+          },
+          {
+            text: 'Cerrar',
+            style: 'cancel'
+          }
+        ]
+      );
+
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'No se pudo guardar o compartir la evaluación');
+    }
+  };
+
   return (
+    <ScrollView>   
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{steps[currentStep].title}</Text>
@@ -316,25 +679,44 @@ export default function Create() {
             style={styles.backButton}
             onPress={handleBack}
           >
+            <Ionicons name="arrow-back" size={20} color={COLORS.primary} />
             <Text style={styles.backButtonText}>Anterior</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          style={[
-            styles.nextButton,
-            !isFormValid(currentStep) && styles.nextButtonDisabled
-          ]}
-          onPress={handleNext}
-          disabled={!isFormValid(currentStep)}
-        >
-          <Text style={styles.nextButtonText}>
-            {currentStep === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
-          </Text>
-        </TouchableOpacity>
+        
+        {currentStep === steps.length - 1 ? (
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              styles.saveButton,
+              !isFormValid(currentStep) && styles.buttonDisabled
+            ]}
+            onPress={handleFinish}
+            disabled={!isFormValid(currentStep)}
+          >
+            <Ionicons name="save-outline" size={24} color="#FFFFFF" />
+            <Text style={styles.actionButtonText}>Guardar</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.nextButton,
+              !isFormValid(currentStep) && styles.buttonDisabled
+            ]}
+            onPress={handleNext}
+            disabled={!isFormValid(currentStep)}
+          >
+            <Text style={styles.nextButtonText}>Siguiente</Text>
+            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
+
+    </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -342,16 +724,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F9FA",
   },
   header: {
-    padding: 16,
+    padding: 20,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: "rgba(0,0,0,0.05)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "700",
     color: "#1A1A1A",
-    marginBottom: 12,
+    marginBottom: 16,
+    letterSpacing: -0.5,
   },
   progressContainer: {
     flexDirection: 'row',
@@ -360,102 +748,173 @@ const styles = StyleSheet.create({
   },
   progressStep: {
     flex: 1,
-    height: 4,
-    backgroundColor: "#E0E0E0",
-    marginHorizontal: 2,
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    marginHorizontal: 3,
+    borderRadius: 3,
   },
   progressStepActive: {
     backgroundColor: "#FF9432",
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: 20,
   },
   footer: {
     flexDirection: 'row',
-    padding: 16,
+    padding: 20,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: "#F0F0F0",
+    borderTopColor: "rgba(0,0,0,0.05)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 8,
   },
   backButton: {
     flex: 1,
-    padding: 14,
-    marginRight: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#FF9432",
-  },
-  nextButton: {
-    flex: 1,
-    backgroundColor: "#FF9432",
-    padding: 14,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  nextButtonDisabled: {
-    backgroundColor: '#E0E0E0',
-    opacity: 0.7,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    marginRight: 12,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    backgroundColor: 'transparent',
   },
   backButtonText: {
-    color: "#FF9432",
-    fontSize: 15,
+    color: COLORS.primary,
+    fontSize: 16,
     fontWeight: "600",
-    textAlign: "center",
-  },
-  nextButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "600",
-    textAlign: "center",
+    marginLeft: 8,
   },
   chartCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
     alignItems: "center",
     width: '100%',
     minHeight: 350,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 8,
   },
   ratingCard: {
     backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 4,
+  },
+  ratingHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  ratingLabel: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    letterSpacing: -0.3,
+  },
+  selectedValue: {
+    backgroundColor: "#FFF8F1",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: "#FF9432",
+  },
+  selectedValueText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#FF9432",
+  },
+  buttonScroll: {
+    paddingHorizontal: 4,
+    paddingBottom: 4,
+  },
+  ratingButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "#F8F9FA",
+    marginHorizontal: 4,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "rgba(0,0,0,0.08)",
+  },
+  ratingButtonSelected: {
+    backgroundColor: "#FF9432",
+    borderColor: "#FF9432",
+    shadowColor: "#FF9432",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  ratingButtonText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#666666",
+  },
+  ratingButtonTextSelected: {
+    color: "#FFFFFF",
   },
   flavorContainer: {
     flex: 1,
+    padding: 4,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 16,
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 20,
     color: "#1A1A1A",
+    letterSpacing: -0.3,
   },
   flavorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -4,
+    marginHorizontal: -6,
   },
   flavorChip: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    margin: 4,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
+    paddingVertical: 10,
+    margin: 6,
+    borderWidth: 1.5,
+    borderColor: "rgba(0,0,0,0.08)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   flavorChipSelected: {
     backgroundColor: "#FF9432",
     borderColor: "#FF9432",
+    shadowColor: "#FF9432",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   flavorChipText: {
     color: "#666666",
-    fontSize: 14,
-    fontWeight: "500",
+    fontSize: 15,
+    fontWeight: "600",
   },
   flavorChipTextSelected: {
     color: "#FFFFFF",
@@ -465,83 +924,141 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    elevation: 8,
   },
   infoLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#666666",
-    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 10,
+    letterSpacing: -0.3,
   },
   input: {
     backgroundColor: "#F8F9FA",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    fontSize: 15,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1.5,
+    borderColor: "rgba(0,0,0,0.08)",
+    fontSize: 16,
+    color: "#1A1A1A",
   },
   inputError: {
     borderColor: '#FF4444',
+    borderWidth: 2,
   },
   textArea: {
-    height: 100,
+    height: 120,
     textAlignVertical: 'top',
   },
-  ratingHeader: {
-    flexDirection: "row",
-    justifyContent: "space",
-    alignItems: "center",
-    marginBottom: 12,
+  groupContainer: {
+    marginVertical: 12,
   },
-  ratingLabel: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#1A1A1A",
+  groupScroll: {
+    flexGrow: 0,
   },
-  selectedValue: {
-    backgroundColor: "#FFF8F1",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#FF9432",
+  groupTag: {
+    backgroundColor: "rgba(255,148,50,0.1)",
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    marginRight: 10,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,148,50,0.2)",
   },
-  selectedValueText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#FF9432",
-  },
-  buttonsContainer: {
-    marginHorizontal: -4,
-  },
-  buttonScroll: {
-    paddingHorizontal: 4,
-  },
-  ratingButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: "#F8F9FA",
-    marginHorizontal: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-  },
-  ratingButtonSelected: {
+  groupTagSelected: {
     backgroundColor: "#FF9432",
     borderColor: "#FF9432",
+    shadowColor: "#FF9432",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  ratingButtonText: {
-    fontSize: 14,
+  groupTagText: {
+    color: COLORS.primary,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#666666",
   },
-  ratingButtonTextSelected: {
+  groupTagTextSelected: {
     color: "#FFFFFF",
   },
-  // ... (mantener los estilos existentes del rating)
+  addGroupButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  addGroupText: {
+    color: COLORS.primary,
+    marginLeft: 6,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  newGroupContainer: {
+    marginTop: 12,
+  },
+  newGroupButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 12,
+    gap: 10,
+  },
+  newGroupButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 16,
+    shadowColor: "#FF9432",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  newGroupButtonText: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  cancelButton: {
+    backgroundColor: "rgba(255,148,50,0.1)",
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+  },
+  cancelButtonText: {
+    color: COLORS.primary,
+  },
+  nextButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    padding: 16,
+    borderRadius: 16,
+    marginLeft: 12,
+    shadowColor: "#FF9432",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  nextButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+    marginRight: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+    backgroundColor: '#E0E0E0',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
 });

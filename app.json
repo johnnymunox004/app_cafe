@@ -19,7 +19,8 @@
       "package": "com.anonymous.expo_cafe_app"
     },
     "web": {
-      "bundler": "metro",
+      "bundler": "metro",    
+      
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },

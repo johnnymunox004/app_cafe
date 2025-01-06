@@ -1,25 +1,37 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import TabBar from "../components/TabBar";
-import { Button } from "react-native";
+import { View, SafeAreaView, StatusBar, Platform, Button } from "react-native";
 import { useRouter } from "expo-router";
+import { COLORS } from '../utils/styles';
 
 export default function RootLayout() {
   const router = useRouter();
 
   return (
-    <Tabs 
-      tabBar={(props) => <TabBar {...props} />}
-      screenListeners={{
-        tabPress: (e) => {
-          // Si se presiona la pestaña tools, redirige a la página principal de tools
-          if (e.target?.includes('(tools)')) {
-            e.preventDefault();
-            router.push('/(tools)');
-          }
-        },
-      }}
-    >
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <StatusBar
+        translucent={true}
+        backgroundColor="transparent"
+        barStyle="dark-content"
+      />
+      <Tabs 
+        tabBar={(props) => <TabBar {...props} />}
+        screenOptions={{
+          headerStyle: {
+            height: Platform.OS === 'ios' ? 90 : 50 + StatusBar.currentHeight,
+          },
+          headerTopInsetEnabled: false,
+        }}
+        screenListeners={{
+          tabPress: (e) => {
+            if (e.target?.includes('(tools)')) {
+              e.preventDefault();
+              router.push('/(tools)');
+            }
+          },
+        }}
+      >
       <Tabs.Screen
         name="index"
         options={{
@@ -58,5 +70,6 @@ export default function RootLayout() {
         })}
       />
     </Tabs>
+    </View>
   );
 }

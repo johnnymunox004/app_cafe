@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { COLORS } from '../../utils/styles';
 
-export default function Layout() {
+export default function ToolsLayout() {
   return (
     <Stack
       screenOptions={{

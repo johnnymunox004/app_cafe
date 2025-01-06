@@ -1,107 +1,106 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Link } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { GlobalStyles, COLORS, SIZES, SHADOWS } from '../../utils/styles';
+import { COLORS, SIZES } from '../../utils/styles';
 
 const tools = [
   {
     id: 1,
-    title: "Escáner de Granos",
-    description: "Analiza el nivel de tostión de tus granos de café",
-    icon: "scan",
-    route: "/(tools)/scanner",
-    gradient: [COLORS.accent, COLORS.secondary]
+    title: "Temporizador",
+    description: "Controla el tiempo de preparación",
+    icon: "timer",
+    route: "/(tools)/time",
+    gradient: [COLORS.accent, COLORS.primary]
   },
   {
     id: 2,
-    title: "Calculadora de Café",
-    description: "Calcula las proporciones perfectas para tu café",
-    icon: "calculator",
-    route: "/(tools)/calculator",
-    gradient: [COLORS.secondary, COLORS.primary]
+    title: "Mapa",
+    description: "Encuentra cafeterías cercanas",
+    icon: "map",
+    route: "/(tools)/map",
+    gradient: [COLORS.primary, COLORS.secondary]
   },
   {
     id: 3,
-    title: "Mapa de Cafeterías",
-    description: "Encuentra las mejores cafeterías cerca de ti",
-    icon: "map",
-    route: "/(tools)/map",
-    gradient: [COLORS.primary, '#2C1810']
-  }
-  ,  {
+    title: "Calculadora",
+    description: "Calcula proporciones de café",
+    icon: "calculator",
+    route: "/(tools)/calculator",
+    gradient: [COLORS.secondary, COLORS.accent]
+  },
+  {
     id: 4,
-    title: "Historial de Catas",
-    description: "mira las catciones que has hecho",
-    icon: "history",
+    title: "Historial",
+    description: "Ver evaluaciones guardadas",
+    icon: "book",
     route: "/(tools)/history",
-    gradient: [COLORS.primary, '#2C1810']
+    gradient: [COLORS.accent, COLORS.primary]
   }
 ];
 
-export default function ToolsScreen() {
+export default function ToolsIndex() {
+  const router = useRouter();
+
   return (
-    <ScrollView style={GlobalStyles.container}>
-      <LinearGradient
-        colors={[COLORS.background, '#E5E5E5']}
-        style={GlobalStyles.gradientContainer}
-      >
-        <Text style={GlobalStyles.title}>Herramientas</Text>
-        
-        <View style={styles.toolsGrid}>
-          {tools.map((tool) => (
-            <Link href={tool.route} key={tool.id} asChild>
-              <TouchableOpacity style={styles.toolCard}>
-                <LinearGradient
-                  colors={tool.gradient}
-                  style={styles.toolGradient}
-                >
-                  <Ionicons name={tool.icon} size={SIZES.extraLarge * 1.5} color={COLORS.white} />
-                  <Text style={styles.toolTitle}>{tool.title}</Text>
-                  <Text style={styles.toolDescription}>{tool.description}</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </Link>
-          ))}
-        </View>
-      </LinearGradient>
+    <ScrollView style={styles.container}>
+      <View style={styles.grid}>
+        {tools.map((tool) => (
+          <TouchableOpacity
+            key={tool.id}
+            style={styles.card}
+            onPress={() => router.push(tool.route)}
+          >
+            <Ionicons name={tool.icon} size={24} color={COLORS.primary} />
+            <Text style={styles.title}>{tool.title}</Text>
+            <Text style={styles.description}>{tool.description}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  toolsGrid: {
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  grid: {
+    padding: SIZES.padding,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: SIZES.padding
+    gap: SIZES.padding,
+    justifyContent: 'center',
   },
-  toolCard: {
-    width: '48%',
-    marginBottom: SIZES.padding,
+  card: {
+    width: '45%',
+    backgroundColor: COLORS.white,
     borderRadius: SIZES.radius,
-    overflow: 'hidden',
-    ...SHADOWS.medium
-  },
-  toolGradient: {
     padding: SIZES.padding,
     alignItems: 'center',
     justifyContent: 'center',
-    aspectRatio: 1,
+    marginBottom: SIZES.padding,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  toolTitle: {
-    color: COLORS.white,
+  title: {
     fontSize: SIZES.medium,
     fontWeight: 'bold',
+    color: COLORS.secondary,
+    marginTop: SIZES.small,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: SIZES.small,
+    color: COLORS.gray,
     textAlign: 'center',
     marginTop: SIZES.base,
-    marginBottom: SIZES.small
   },
-  toolDescription: {
-    color: COLORS.white,
-    fontSize: SIZES.small,
-    textAlign: 'center',
-    opacity: 0.8
-  }
 });
