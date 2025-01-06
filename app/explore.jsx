@@ -8,9 +8,16 @@ import {
   ScrollView,
   Animated,
   Dimensions,
+  Image,
 } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import Barrita from "../components/barrita";
+import chemex from "../utils/images/chemex.jpg";
+import chemex43 from "../utils/images/chemex43.jpg";
+import prensa12 from "../utils/images/prensa12.jpg";
+import seleccio32 from "../utils/images/seleccio32.jpg";
+import taza from "../utils/images/taza.jpg";
+import v6034 from "../utils/images/v6034.jpg";
 
 const { width } = Dimensions.get('window');
 
@@ -22,58 +29,51 @@ export default function Explore() {
 
   const coffeeMethods = [
     {
-      name: "Café Filtrado",
+      name: "Chemex",
       icon: "☕",
+      image: chemex,
+      secondaryImage: chemex43,
       gradient: ['#FFB75E', '#ED8F03'],
       description:
-        "El café filtrado es uno de los métodos más comunes y fáciles de preparar. Se utiliza un filtro de papel para separar los granos molidos del agua caliente.",
+        "El método Chemex resalta las notas florales y afrutadas del café. Produce una bebida limpia y brillante.",
       measures: {
-        "1 persona": "10g de café, 150ml de agua",
-        "2 personas": "20g de café, 300ml de agua",
-        "4 personas": "40g de café, 600ml de agua",
+        "1 persona": "15g de café, 250ml de agua",
+        "2 personas": "30g de café, 500ml de agua",
+        "4 personas": "60g de café, 1000ml de agua",
       },
       preparation:
-        "1. Coloca el filtro en la cafetera.\n2. Agrega el café molido.\n3. Vierte agua caliente sobre el café.\n4. Espera a que el agua se filtre y sirve el café.",
+        "1. Coloca el filtro en la Chemex y enjuágalo.\n2. Agrega el café molido medio-grueso.\n3. Vierte agua a 93°C en forma circular.\n4. El tiempo total debe ser 4-5 minutos.",
     },
     {
-      name: "Café Espresso",
-      icon: "⚡",
+      name: "V60",
+      icon: "🌟",
+      image: v6034,
+      secondaryImage: taza,
       gradient: ['#2193b0', '#6dd5ed'],
       description:
-        "El espresso es un método de preparación de café concentrado y fuerte, popular en muchas cafeterías. Requiere una máquina de espresso.",
+        "El V60 es conocido por su capacidad para resaltar la claridad y los sabores delicados del café.",
       measures: {
-        "1 persona": "18g de café, 30ml de agua",
-        "2 personas": "36g de café, 60ml de agua",
+        "1 persona": "15g de café, 250ml de agua",
+        "2 personas": "30g de café, 500ml de agua",
       },
       preparation:
-        "1. Llena el portafiltro con café molido.\n2. Presiona ligeramente el café.\n3. Coloca el portafiltro en la máquina de espresso.\n4. Extrae el café a alta presión.",
+        "1. Coloca el filtro y enjuágalo.\n2. Agrega café molido medio.\n3. Realiza el bloom con 30-45ml de agua.\n4. Vierte el resto del agua en espirales.",
     },
     {
       name: "Prensa Francesa",
-      icon: "🌟",
+      icon: "⚡",
+      image: prensa12,
+      secondaryImage: seleccio32,
       gradient: ['#FF416C', '#FF4B2B'],
       description:
-        "La prensa francesa es ideal para aquellos que buscan un café más espeso y aceitoso. Se utiliza una prensa manual para filtrar los granos.",
+        "La prensa francesa produce un café robusto y con cuerpo completo. Ideal para quienes disfrutan un café intenso.",
       measures: {
-        "1 persona": "12g de café, 200ml de agua",
-        "2 personas": "24g de café, 400ml de agua",
-        "4 personas": "48g de café, 800ml de agua",
+        "1 persona": "15g de café, 250ml de agua",
+        "2 personas": "30g de café, 500ml de agua",
+        "4 personas": "60g de café, 1000ml de agua",
       },
       preparation:
-        "1. Agrega el café molido en la prensa.\n2. Vierte agua caliente sobre el café.\n3. Coloca la tapa y deja reposar por 4 minutos.\n4. Presiona el émbolo y sirve.",
-    },
-    {
-      name: "AeroPress",
-      icon: "🔄",
-      gradient: ['#834d9b', '#d04ed6'],
-      description:
-        "La AeroPress es un dispositivo manual que permite preparar un café similar al espresso pero con una textura más suave.",
-      measures: {
-        "1 persona": "14g de café, 200ml de agua",
-        "2 personas": "28g de café, 400ml de agua",
-      },
-      preparation:
-        "1. Coloca el café molido en la AeroPress.\n2. Agrega agua caliente hasta la marca indicada.\n3. Remueve y coloca el émbolo.\n4. Presiona el café hacia abajo.",
+        "1. Agrega café molido grueso.\n2. Vierte agua a 95°C.\n3. Espera 4 minutos.\n4. Presiona el émbolo lentamente.",
     },
   ];
 
@@ -145,6 +145,10 @@ export default function Explore() {
                   colors={method.gradient}
                   style={styles.cardGradient}
                 >
+                  <Image 
+                    source={method.image}
+                    style={styles.methodImage}
+                  />
                   <Text style={styles.methodIcon}>{method.icon}</Text>
                   <Text style={styles.cardTitle}>{method.name}</Text>
                   <Text style={styles.cardDescription} numberOfLines={2}>
@@ -184,6 +188,17 @@ export default function Explore() {
                   </TouchableOpacity>
 
                   <ScrollView showsVerticalScrollIndicator={false}>
+                    <View style={styles.imageContainer}>
+                      <Image 
+                        source={selectedMethod.image}
+                        style={styles.modalMainImage}
+                      />
+                      <Image 
+                        source={selectedMethod.secondaryImage}
+                        style={styles.modalSecondaryImage}
+                      />
+                    </View>
+
                     <Text style={styles.modalIcon}>{selectedMethod.icon}</Text>
                     <Text style={styles.modalTitle}>{selectedMethod.name}</Text>
                     <Text style={styles.modalDescription}>
@@ -265,6 +280,7 @@ const styles = StyleSheet.create({
   },
   cardGradient: {
     padding: 20,
+    borderRadius: 15,
   },
   methodIcon: {
     fontSize: 32,
@@ -370,5 +386,28 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  methodImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 15,
+    marginBottom: 10,
+  },
+  imageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 15,
+    paddingHorizontal: 10,
+  },
+  modalMainImage: {
+    width: '60%',
+    height: 200,
+    borderRadius: 15,
+    marginRight: 5,
+  },
+  modalSecondaryImage: {
+    width: '38%',
+    height: 200,
+    borderRadius: 15,
   },
 });

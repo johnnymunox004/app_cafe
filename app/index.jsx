@@ -13,32 +13,31 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import Barrita from "../components/barrita";
 import { SafeAreaView } from "react-native-safe-area-context";
-import chemex from "../utils/chemex.jpg";
+import chemex from "../utils/images/chemex.jpg";
+import v6034 from "../utils/images/v6034.jpg";
+import prensa12 from "../utils/images/prensa12.jpg";
 
 const { width } = Dimensions.get('window');
 
-const coffeeData = [
-  { id: "1", name: "Café Arábica", origin: "Colombia", image: chemex },
+const preparationMethods = [
+  { 
+    id: "1", 
+    name: "Chemex", 
+    description: "Método por goteo que resalta notas florales y afrutadas", 
+    image: chemex 
+  },
   {
     id: "2",
-    name: "Café Robusta",
-    origin: "Vietnam",
-    image: "https://via.placeholder.com/150",
+    name: "V60",
+    description: "Método manual que destaca la claridad y limpieza del café",
+    image: v6034
   },
   {
     id: "3",
-    name: "Café Geisha",
-    origin: "Panamá",
-    image: "https://via.placeholder.com/150",
+    name: "Prensa Francesa",
+    description: "Método de inmersión que produce un café robusto y con cuerpo",
+    image: prensa12
   },
-];
-
-const coffeeFacts = [
-  "El café es la segunda bebida más consumida del mundo, solo después del agua.",
-  "El café fue descubierto por un pastor en Etiopía que notó el efecto energético en sus cabras.",
-  "El café contiene más de 1000 compuestos diferentes.",
-  "El café puede mejorar la memoria y la concentración.",
-  "El 70% del café consumido es Arábica.",
 ];
 
 export default function Home() {
@@ -68,7 +67,7 @@ export default function Home() {
     ]).start();
   }, []);
 
-  const renderCoffeeCard = ({ item, index }) => {
+  const renderMethodCard = ({ item, index }) => {
     const inputRange = [0, 1];
     const translateX = fadeAnim.interpolate({
       inputRange,
@@ -90,11 +89,11 @@ export default function Home() {
           style={styles.cardGradient}
         >
           <Image
-            source={typeof item.image === "string" ? { uri: item.image } : item.image}
+            source={item.image}
             style={styles.cardImage}
           />
           <Text style={styles.cardTitle}>{item.name}</Text>
-          <Text style={styles.cardSubtitle}>{item.origin}</Text>
+          <Text style={styles.cardDescription}>{item.description}</Text>
         </LinearGradient>
       </Animated.View>
     );
@@ -108,29 +107,25 @@ export default function Home() {
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
-            <Text style={styles.title}>Cata de Café</Text>
+            <Text style={styles.title}>Métodos de Preparación</Text>
           </Animated.View>
 
           <Animated.View style={{ 
             opacity: fadeAnim, 
             transform: [{ translateX: slideAnim }] 
           }}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/300x150" }}
-              style={styles.bannerImage}
-            />
             <Text style={styles.subtitle}>
-              Descubre y evalúa los mejores cafés del mundo
+              Descubre diferentes formas de preparar tu café
             </Text>
           </Animated.View>
 
-          <Text style={styles.sectionTitle}>Cafés Disponibles</Text>
+          <Text style={styles.sectionTitle}>Métodos Disponibles</Text>
           <FlatList
-            data={coffeeData}
+            data={preparationMethods}
             keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
-            renderItem={renderCoffeeCard}
+            renderItem={renderMethodCard}
           />
 
           <View style={styles.actionContainer}>
@@ -139,7 +134,7 @@ export default function Home() {
                 colors={['#FF9432', '#FF6B00']}
                 style={styles.buttonGradient}
               >
-                <Text style={styles.buttonText}>Registrar Nueva Cata</Text>
+                <Text style={styles.buttonText}>Nueva Evaluación</Text>
               </LinearGradient>
             </TouchableOpacity>
             
@@ -148,35 +143,11 @@ export default function Home() {
                 colors={['#4b6cb7', '#182848']}
                 style={styles.buttonGradient}
               >
-                <Text style={styles.buttonText}>Ver Resultados</Text>
+                <Text style={styles.buttonText}>Ver Historial</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
-
-          <Text style={styles.sectionTitle}>Datos Curiosos del Café</Text>
-          {coffeeFacts.map((fact, index) => (
-            <Animated.View
-              key={index}
-              style={{
-                opacity: fadeAnim,
-                transform: [{ 
-                  translateX: fadeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [50 * (index + 1), 0],
-                  })
-                }],
-              }}
-            >
-              <LinearGradient
-                colors={['rgba(75, 108, 183, 0.1)', 'rgba(24, 40, 72, 0.1)']}
-                style={styles.factCard}
-              >
-                <Text style={styles.factText}>{fact}</Text>
-              </LinearGradient>
-            </Animated.View>
-          ))}
         </ScrollView>
-        
       </LinearGradient>
     </SafeAreaView>
   );
@@ -226,21 +197,15 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     overflow: 'hidden',
     elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    width: 200,
   },
   cardGradient: {
     padding: 15,
     alignItems: "center",
   },
   cardImage: {
-    width: 120,
-    height: 120,
+    width: 150,
+    height: 150,
     borderRadius: 10,
     marginBottom: 10,
   },
@@ -250,10 +215,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginBottom: 5,
   },
-  cardSubtitle: {
+  cardDescription: {
     fontSize: 14,
-    color: "#fff",
+    color: '#fff',
     opacity: 0.8,
+    textAlign: 'center',
+    marginTop: 5,
   },
   actionContainer: {
     marginVertical: 20,
@@ -272,15 +239,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
-  },
-  factCard: {
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  factText: {
-    fontSize: 14,
-    color: "#333",
-    lineHeight: 20,
   },
 });
