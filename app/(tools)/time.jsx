@@ -1,10 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
-import { GlobalStyles, COLORS, SIZES } from '../../utils/styles';
+import { COLORS, SIZES } from '../../utils/styles';
 import Barrita from '../../components/barrita';
+
+// Definir los estilos base aquí en lugar de depender de GlobalStyles
+const baseStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  gradientContainer: {
+    flex: 1,
+    padding: SIZES.padding,
+  },
+  title: {
+    fontSize: SIZES.extraLarge,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginBottom: SIZES.padding,
+  }
+});
 
 // Configurar las notificaciones
 Notifications.setNotificationHandler({
@@ -15,6 +33,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Definir los métodos de preparación
 const brewingMethods = [
   {
     id: 1,
@@ -68,7 +87,6 @@ export default function TimeScreen() {
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    // Pedir permiso para notificaciones
     async function requestPermissions() {
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -165,62 +183,73 @@ export default function TimeScreen() {
   };
 
   return (
-    <ScrollView style={GlobalStyles.container}>
-      <LinearGradient colors={[COLORS.background, '#E5E5E5']} style={GlobalStyles.gradientContainer}>
-        <Text style={GlobalStyles.title}>Temporizador</Text>
+    <SafeAreaView style={baseStyles.container}>
+      <ScrollView>
+        <LinearGradient 
+          colors={[COLORS.background, '#E5E5E5']} 
+          style={baseStyles.gradientContainer}
+        >
+          <Text style={baseStyles.title}>Temporizador</Text>
 
-        <View style={styles.methodsContainer}>
-          {brewingMethods.map((method) => (
-            <TouchableOpacity
-              key={method.id}
-              style={[
-                styles.methodCard,
-                selectedMethod?.id === method.id && styles.selectedMethod
-              ]}
-              onPress={() => selectMethod(method)}
-            >
-              <Ionicons name={method.icon} size={24} color={COLORS.primary} />
-              <Text style={styles.methodName}>{method.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {selectedMethod && (
-          <View style={styles.timerContainer}>
-            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-            
-            <View style={styles.controls}>
-              <TouchableOpacity style={styles.button} onPress={toggleTimer}>
-                <Ionicons 
-                  name={isRunning ? "pause" : "play"} 
-                  size={24} 
-                  color={COLORS.white} 
-                />
+          <View style={styles.methodsContainer}>
+            {brewingMethods.map((method) => (
+              <TouchableOpacity
+                key={method.id}
+                style={[
+                  styles.methodCard,
+                  selectedMethod?.id === method.id && styles.selectedMethod
+                ]}
+                onPress={() => selectMethod(method)}
+              >
+                <Ionicons name={method.icon} size={24} color={COLORS.primary} />
+                <Text style={styles.methodName}>{method.name}</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.button} onPress={resetTimer}>
-                <Ionicons name="refresh" size={24} color={COLORS.white} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.stepsContainer}>
-              {selectedMethod.steps.map((step, index) => (
-                <View 
-                  key={index} 
-                  style={[
-                    styles.stepCard,
-                    currentStep === index && styles.currentStep
-                  ]}
-                >
-                  <Text style={styles.stepText}>{step.description}</Text>
-                </View>
-              ))}
-            </View>
+            ))}
           </View>
-        )}
-      </LinearGradient>
-      <Barrita />   
-    </ScrollView>
+
+          {selectedMethod && (
+            <View style={styles.timerContainer}>
+              <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+              
+              <View style={styles.controls}>
+                <TouchableOpacity 
+                  style={styles.button} 
+                  onPress={toggleTimer}
+                >
+                  <Ionicons 
+                    name={isRunning ? "pause" : "play"} 
+                    size={24} 
+                    color={COLORS.white} 
+                  />
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.button} 
+                  onPress={resetTimer}
+                >
+                  <Ionicons name="refresh" size={24} color={COLORS.white} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.stepsContainer}>
+                {selectedMethod.steps.map((step, index) => (
+                  <View 
+                    key={index} 
+                    style={[
+                      styles.stepCard,
+                      currentStep === index && styles.currentStep
+                    ]}
+                  >
+                    <Text style={styles.stepText}>{step.description}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </LinearGradient>
+        <Barrita />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

@@ -10,17 +10,18 @@ import {
   Alert,
   Dimensions,
   Share,
+  Platform,
 } from "react-native";
 import { RadarChart } from "@salmonco/react-native-radar-chart";
 import generatePDF from "../components/PDFGenerator";
 import ViewShot from "react-native-view-shot";
-import { saveEvaluation, getEvaluations } from '../utils/storage';
-import { useRouter } from 'expo-router';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { COLORS, SIZES } from '../utils/styles';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
-import { useFocusEffect } from 'expo-router';
+import { saveEvaluation, getEvaluations } from "../utils/storage";
+import { useRouter } from "expo-router";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { COLORS, SIZES } from "../utils/styles";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
+import { useFocusEffect } from "expo-router";
 
 const ProgressBar = ({ currentStep, totalSteps }) => (
   <View style={styles.progressContainer}>
@@ -51,7 +52,7 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
           onCapture && onCapture(`data:image/png;base64,${uri}`);
         }
       } catch (error) {
-        console.error('Error capturando el gráfico:', error);
+        console.error("Error capturando el gráfico:", error);
       }
     };
     captureChart();
@@ -65,24 +66,26 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
           <Text style={styles.selectedValueText}>{value}</Text>
         </View>
       </View>
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.buttonScroll}
       >
-        {[1,2,3,4,5,6,7,8,9,10].map((num) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
           <TouchableOpacity
             key={num}
             style={[
               styles.ratingButton,
-              value === num && styles.ratingButtonSelected
+              value === num && styles.ratingButtonSelected,
             ]}
             onPress={() => onValueChange(num)}
           >
-            <Text style={[
-              styles.ratingButtonText,
-              value === num && styles.ratingButtonTextSelected
-            ]}>
+            <Text
+              style={[
+                styles.ratingButtonText,
+                value === num && styles.ratingButtonTextSelected,
+              ]}
+            >
               {num}
             </Text>
           </TouchableOpacity>
@@ -93,18 +96,20 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
 
   return (
     <ScrollView>
-      <ViewShot 
-        ref={viewShotRef} 
+      <ViewShot
+        ref={viewShotRef}
         options={{ format: "png", quality: 1, result: "base64" }}
       >
-        <View style={[styles.chartCard, { backgroundColor: 'white' }]}>
-          <View style={{ 
-            width: 300, 
-            height: 300, 
-            backgroundColor: 'white',
-            borderWidth: 1,
-            borderColor: '#ddd' 
-          }}>
+        <View style={[styles.chartCard, { backgroundColor: "white" }]}>
+          <View
+            style={{
+              width: 300,
+              height: 300,
+              backgroundColor: "white",
+              borderWidth: 1,
+              borderColor: "#ddd",
+            }}
+          >
             <RadarChart
               data={Object.entries(ratings).map(([label, value]) => ({
                 label: label.charAt(0).toUpperCase() + label.slice(1),
@@ -127,9 +132,9 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
               showAxisValue={true}
               axisValueStyle={{
                 fontSize: 10,
-                fill: "#666666"
+                fill: "#666666",
               }}
-              axisValue={[2, 4, 6, 8, 10].map(v => v * 10)}
+              axisValue={[2, 4, 6, 8, 10].map((v) => v * 10)}
             />
           </View>
         </View>
@@ -148,13 +153,23 @@ const BasicEvaluation = ({ ratings, updateRating, onCapture }) => {
 
 const FlavorEvaluation = ({ flavors, updateFlavors }) => {
   const flavorOptions = [
-    "Chocolate", "Nueces", "Caramelo", "Frutal", "Cítrico", 
-    "Floral", "Especiado", "Herbáceo", "Tostado", "Miel"
+    "Chocolate",
+    "Nueces",
+    "Caramelo",
+    "Frutal",
+    "Cítrico",
+    "Floral",
+    "Especiado",
+    "Herbáceo",
+    "Tostado",
+    "Miel",
   ];
 
   return (
     <View>
-      <Text style={styles.sectionTitle}>Selecciona los sabores identificados</Text>
+      <Text style={styles.sectionTitle}>
+        Selecciona los sabores identificados
+      </Text>
       <View style={styles.flavorGrid}>
         <ScrollView style={styles.flavorContainer}>
           {flavorOptions.map((flavor) => (
@@ -162,20 +177,22 @@ const FlavorEvaluation = ({ flavors, updateFlavors }) => {
               key={flavor}
               style={[
                 styles.flavorChip,
-                flavors.includes(flavor) && styles.flavorChipSelected
+                flavors.includes(flavor) && styles.flavorChipSelected,
               ]}
               onPress={() => {
                 if (flavors.includes(flavor)) {
-                  updateFlavors(flavors.filter(f => f !== flavor));
+                  updateFlavors(flavors.filter((f) => f !== flavor));
                 } else {
                   updateFlavors([...flavors, flavor]);
                 }
               }}
             >
-              <Text style={[
-                styles.flavorChipText,
-                flavors.includes(flavor) && styles.flavorChipTextSelected
-              ]}>
+              <Text
+                style={[
+                  styles.flavorChipText,
+                  flavors.includes(flavor) && styles.flavorChipTextSelected,
+                ]}
+              >
                 {flavor}
               </Text>
             </TouchableOpacity>
@@ -186,14 +203,21 @@ const FlavorEvaluation = ({ flavors, updateFlavors }) => {
   );
 };
 
-const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, onCreateGroup }) => {
-  const [newGroupName, setNewGroupName] = useState('');
+const CoffeeInfo = ({
+  info,
+  updateInfo,
+  groups,
+  selectedGroup,
+  onGroupChange,
+  onCreateGroup,
+}) => {
+  const [newGroupName, setNewGroupName] = useState("");
   const [showNewGroupInput, setShowNewGroupInput] = useState(false);
 
   const handleCreateGroup = () => {
     if (newGroupName.trim()) {
       onCreateGroup(newGroupName.trim());
-      setNewGroupName('');
+      setNewGroupName("");
       setShowNewGroupInput(false);
     }
   };
@@ -205,7 +229,7 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
         <TextInput
           style={[styles.input, !info.name && styles.inputError]}
           value={info.name}
-          onChangeText={(text) => updateInfo('name', text)}
+          onChangeText={(text) => updateInfo("name", text)}
           placeholder="Nombre del café"
         />
 
@@ -213,14 +237,14 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
         <TextInput
           style={[styles.input, !info.origin && styles.inputError]}
           value={info.origin}
-          onChangeText={(text) => updateInfo('origin', text)}
+          onChangeText={(text) => updateInfo("origin", text)}
           placeholder="País o región de origen"
         />
 
         <Text style={styles.infoLabel}>Grupo</Text>
         <View style={styles.groupContainer}>
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.groupScroll}
           >
@@ -229,14 +253,16 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
                 key={group}
                 style={[
                   styles.groupTag,
-                  selectedGroup === group && styles.groupTagSelected
+                  selectedGroup === group && styles.groupTagSelected,
                 ]}
                 onPress={() => onGroupChange(group)}
               >
-                <Text style={[
-                  styles.groupTagText,
-                  selectedGroup === group && styles.groupTagTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.groupTagText,
+                    selectedGroup === group && styles.groupTagTextSelected,
+                  ]}
+                >
                   {group}
                 </Text>
               </TouchableOpacity>
@@ -245,7 +271,11 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
               style={styles.addGroupButton}
               onPress={() => setShowNewGroupInput(true)}
             >
-              <Ionicons name="add-circle-outline" size={24} color={COLORS.primary} />
+              <Ionicons
+                name="add-circle-outline"
+                size={24}
+                color={COLORS.primary}
+              />
               <Text style={styles.addGroupText}>Nuevo Grupo</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -271,7 +301,9 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
                 style={[styles.newGroupButton, styles.cancelButton]}
                 onPress={() => setShowNewGroupInput(false)}
               >
-                <Text style={[styles.newGroupButtonText, styles.cancelButtonText]}>
+                <Text
+                  style={[styles.newGroupButtonText, styles.cancelButtonText]}
+                >
                   Cancelar
                 </Text>
               </TouchableOpacity>
@@ -283,7 +315,7 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
         <TextInput
           style={[styles.input, styles.textArea]}
           value={info.notes}
-          onChangeText={(text) => updateInfo('notes', text)}
+          onChangeText={(text) => updateInfo("notes", text)}
           placeholder="Notas adicionales"
           multiline
           numberOfLines={4}
@@ -294,12 +326,12 @@ const CoffeeInfo = ({ info, updateInfo, groups, selectedGroup, onGroupChange, on
 };
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+  return new Date(date).toLocaleDateString("es-ES", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
@@ -307,15 +339,15 @@ const formatRatings = (ratings) => {
   return Object.entries(ratings)
     .map(([key, value]) => {
       const label = {
-        aroma: '👃 Aroma',
-        sabor: '👅 Sabor',
-        acidez: '🍋 Acidez',
-        cuerpo: '💪 Cuerpo',
-        dulzura: '🍯 Dulzura'
+        aroma: "👃 Aroma",
+        sabor: "👅 Sabor",
+        acidez: "🍋 Acidez",
+        cuerpo: "💪 Cuerpo",
+        dulzura: "🍯 Dulzura",
       }[key];
       return `${label}: ${value}/10`;
     })
-    .join('\n');
+    .join("\n");
 };
 
 export default function Create() {
@@ -330,12 +362,12 @@ export default function Create() {
   });
   const [flavors, setFlavors] = useState([]);
   const [info, setInfo] = useState({
-    name: '',
-    origin: '',
-    notes: '',
+    name: "",
+    origin: "",
+    notes: "",
   });
   const [chartUri, setChartUri] = useState(null);
-  const [groups, setGroups] = useState(['Favoritos']);
+  const [groups, setGroups] = useState(["Favoritos"]);
   const [selectedGroup, setSelectedGroup] = useState(null);
 
   const resetForm = () => {
@@ -348,9 +380,9 @@ export default function Create() {
     });
     setFlavors([]);
     setInfo({
-      name: '',
-      origin: '',
-      notes: '',
+      name: "",
+      origin: "",
+      notes: "",
     });
     setChartUri(null);
     setCurrentStep(0);
@@ -373,21 +405,23 @@ export default function Create() {
   const loadExistingGroups = async () => {
     try {
       const evaluations = await getEvaluations();
-      const existingGroups = [...new Set(evaluations.map(item => item.group).filter(Boolean))];
-      
+      const existingGroups = [
+        ...new Set(evaluations.map((item) => item.group).filter(Boolean)),
+      ];
+
       // Combinar grupos existentes con los predeterminados
-      const allGroups = [...new Set(['Favoritos', ...existingGroups])];
+      const allGroups = [...new Set(["Favoritos", ...existingGroups])];
       setGroups(allGroups);
-      
-      console.log('Grupos cargados:', allGroups); // Debug
+
+      console.log("Grupos cargados:", allGroups); // Debug
     } catch (error) {
-      console.error('Error al cargar grupos:', error);
+      console.error("Error al cargar grupos:", error);
     }
   };
 
   const handleCreateGroup = (newGroup) => {
     if (newGroup && !groups.includes(newGroup)) {
-      setGroups(prev => [...prev, newGroup]);
+      setGroups((prev) => [...prev, newGroup]);
       setSelectedGroup(newGroup);
     }
   };
@@ -399,46 +433,64 @@ export default function Create() {
   const steps = [
     {
       title: "Evaluación Básica",
-      component: <BasicEvaluation 
-        ratings={ratings} 
-        updateRating={(key, value) => setRatings(prev => ({...prev, [key]: value}))}
-        onCapture={setChartUri}
-      />
+      component: (
+        <BasicEvaluation
+          ratings={ratings}
+          updateRating={(key, value) =>
+            setRatings((prev) => ({ ...prev, [key]: value }))
+          }
+          onCapture={setChartUri}
+        />
+      ),
     },
     {
       title: "Sabores y Aromas",
-      component: <FlavorEvaluation 
-        flavors={flavors}
-        updateFlavors={setFlavors}
-      />
+      component: (
+        <FlavorEvaluation flavors={flavors} updateFlavors={setFlavors} />
+      ),
     },
     {
       title: "Información",
-      component: <CoffeeInfo 
-        info={info}
-        updateInfo={(key, value) => setInfo(prev => ({...prev, [key]: value}))}
-        groups={groups}
-        selectedGroup={selectedGroup}
-        onGroupChange={handleGroupChange}
-        onCreateGroup={handleCreateGroup}
-      />
-    }
+      component: (
+        <CoffeeInfo
+          info={info}
+          updateInfo={(key, value) =>
+            setInfo((prev) => ({ ...prev, [key]: value }))
+          }
+          groups={groups}
+          selectedGroup={selectedGroup}
+          onGroupChange={handleGroupChange}
+          onCreateGroup={handleCreateGroup}
+        />
+      ),
+    },
   ];
 
   const isFormValid = (step) => {
-    switch(step) {
+    switch (step) {
       case 2:
-        return info.name.trim() !== '' && info.origin.trim() !== '';
+        return info.name.trim() !== "" && info.origin.trim() !== "";
       default:
         return true;
     }
   };
 
   const handleFinish = async () => {
-    if (!isFormValid(currentStep)) {
+    // Validar campos requeridos
+    const missingFields = [];
+    if (!info.name.trim()) missingFields.push('Nombre del Café');
+    if (!info.origin.trim()) missingFields.push('Origen');
+
+    if (missingFields.length > 0) {
       Alert.alert(
-        'Campos Requeridos',
-        'Por favor complete los campos obligatorios marcados con *'
+        '⚠️ Campos Incompletos',
+        `Por favor complete los siguientes campos obligatorios:\n\n${missingFields.join('\n')}`,
+        [
+          {
+            text: 'Entendido',
+            style: 'default',
+          }
+        ]
       );
       return;
     }
@@ -487,7 +539,16 @@ export default function Create() {
 
     } catch (error) {
       console.error('Error al guardar la evaluación:', error);
-      Alert.alert('Error', 'No se pudo guardar la evaluación');
+      Alert.alert(
+        '❌ Error',
+        'No se pudo guardar la evaluación. Por favor intente nuevamente.',
+        [
+          {
+            text: 'Cerrar',
+            style: 'cancel'
+          }
+        ]
+      );
     }
   };
 
@@ -507,7 +568,7 @@ export default function Create() {
 
   const generatePDF = async () => {
     if (!isFormValid(currentStep)) {
-      Alert.alert('Error', 'Por favor complete todos los campos requeridos');
+      Alert.alert("Error", "Por favor complete todos los campos requeridos");
       return;
     }
 
@@ -524,7 +585,7 @@ export default function Create() {
       };
 
       await saveEvaluation(evaluationData);
-      console.log('Evaluación guardada exitosamente');
+      console.log("Evaluación guardada exitosamente");
 
       const htmlContent = `
         <html>
@@ -573,150 +634,164 @@ export default function Create() {
               <h2>📝 Información General</h2>
               <p><strong>Nombre:</strong> ${info.name}</p>
               <p><strong>Origen:</strong> ${info.origin}</p>
-              <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+              <p><strong>Fecha:</strong> ${new Date().toLocaleDateString(
+                "es-ES"
+              )}</p>
             </div>
 
-            ${chartUri ? `
+            ${
+              chartUri
+                ? `
               <div class="chart-container">
                 <img src="${chartUri}" width="300" height="300" />
               </div>
-            ` : ''}
+            `
+                : ""
+            }
 
             <div class="section">
               <h2>⭐️ Calificaciones</h2>
               ${Object.entries(ratings)
-                .map(([key, value]) => `
+                .map(
+                  ([key, value]) => `
                   <div class="rating-item">
                     <span>${key.charAt(0).toUpperCase() + key.slice(1)}</span>
                     <span>${value}/10</span>
                   </div>
-                `).join('')}
+                `
+                )
+                .join("")}
             </div>
 
             <div class="section">
               <h2>🎯 Sabores Identificados</h2>
-              ${flavors.map(flavor => `
+              ${flavors
+                .map(
+                  (flavor) => `
                 <span class="flavor-tag">${flavor}</span>
-              `).join('')}
+              `
+                )
+                .join("")}
             </div>
 
-            ${info.notes ? `
+            ${
+              info.notes
+                ? `
               <div class="section">
                 <h2>📝 Notas</h2>
                 <p>${info.notes}</p>
               </div>
-            ` : ''}
+            `
+                : ""
+            }
           </body>
         </html>
       `;
 
-      console.log('Generando PDF...');
+      console.log("Generando PDF...");
       const { uri } = await Print.printToFileAsync({
         html: htmlContent,
-        base64: false
+        base64: false,
       });
-      console.log('PDF generado:', uri);
+      console.log("PDF generado:", uri);
 
       if (!(await Sharing.isAvailableAsync())) {
-        Alert.alert('Error', 'La función de compartir no está disponible');
+        Alert.alert("Error", "La función de compartir no está disponible");
         return;
       }
 
       await Sharing.shareAsync(uri, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Compartir Evaluación de Café',
-        UTI: 'com.adobe.pdf'
+        mimeType: "application/pdf",
+        dialogTitle: "Compartir Evaluación de Café",
+        UTI: "com.adobe.pdf",
       });
 
       Alert.alert(
-        '✨ ¡Evaluación Guardada!',
-        'La evaluación se ha guardado y compartido exitosamente',
+        "✨ ¡Evaluación Guardada!",
+        "La evaluación se ha guardado y compartido exitosamente",
         [
           {
-            text: 'Nueva Evaluación',
+            text: "Nueva Evaluación",
             onPress: () => {
               resetForm();
-              router.replace('/create');
+              router.replace("/create");
             },
-            style: 'default'
+            style: "default",
           },
           {
-            text: 'Ver Historial',
+            text: "Ver Historial",
             onPress: () => {
               resetForm();
-              router.push('/(tools)/history');
+              router.push("/(tools)/history");
             },
-            style: 'default'
+            style: "default",
           },
           {
-            text: 'Cerrar',
-            style: 'cancel'
-          }
+            text: "Cerrar",
+            style: "cancel",
+          },
         ]
       );
-
     } catch (error) {
-      console.error('Error:', error);
-      Alert.alert('Error', 'No se pudo guardar o compartir la evaluación');
+      console.error("Error:", error);
+      Alert.alert("Error", "No se pudo guardar o compartir la evaluación");
     }
   };
 
   return (
-    <ScrollView>   
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{steps[currentStep].title}</Text>
-        <ProgressBar currentStep={currentStep} totalSteps={steps.length} />
-      </View>
+    <ScrollView>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{steps[currentStep].title}</Text>
+          <ProgressBar currentStep={currentStep} totalSteps={steps.length} />
+        </View>
 
-      <View style={styles.content}>
-        {steps[currentStep].component}
-      </View>
+        <View style={styles.content}>{steps[currentStep].component}</View>
 
-      <View style={styles.footer}>
-        {currentStep > 0 && (
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={handleBack}
-          >
-            <Ionicons name="arrow-back" size={20} color={COLORS.primary} />
-            <Text style={styles.backButtonText}>Anterior</Text>
-          </TouchableOpacity>
-        )}
-        
-        {currentStep === steps.length - 1 ? (
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              styles.saveButton,
-              !isFormValid(currentStep) && styles.buttonDisabled
-            ]}
-            onPress={handleFinish}
-            disabled={!isFormValid(currentStep)}
-          >
-            <Ionicons name="save-outline" size={24} color="#FFFFFF" />
-            <Text style={styles.actionButtonText}>Guardar</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={[
-              styles.nextButton,
-              !isFormValid(currentStep) && styles.buttonDisabled
-            ]}
-            onPress={handleNext}
-            disabled={!isFormValid(currentStep)}
-          >
-            <Text style={styles.nextButtonText}>Siguiente</Text>
-            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        )}
-      </View>
-    </SafeAreaView>
-
+        <View style={styles.footer}>
+          {currentStep > 0 && (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBack}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="arrow-back-outline" size={22} color={COLORS.primary} />
+              <Text style={styles.backButtonText}>Anterior</Text>
+            </TouchableOpacity>
+          )}
+          
+          {currentStep === steps.length - 1 ? (
+            <TouchableOpacity
+              style={[
+                styles.saveButton,
+                !isFormValid(currentStep) && styles.buttonDisabled
+              ]}
+              onPress={handleFinish}
+              disabled={!isFormValid(currentStep)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="save-outline" size={22} color="#FFFFFF" />
+              <Text style={styles.saveButtonText}>Guardar Evaluación</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.nextButton,
+                !isFormValid(currentStep) && styles.buttonDisabled
+              ]}
+              onPress={handleNext}
+              disabled={!isFormValid(currentStep)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.nextButtonText}>Siguiente</Text>
+              <Ionicons name="arrow-forward-outline" size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </SafeAreaView>
     </ScrollView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -742,8 +817,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   progressContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 4,
   },
   progressStep: {
@@ -763,6 +838,7 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     padding: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
     borderTopColor: "rgba(0,0,0,0.05)",
@@ -771,6 +847,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 8,
+    gap: 12,
   },
   backButton: {
     flex: 1,
@@ -778,16 +855,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    marginRight: 12,
     borderRadius: 16,
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: COLORS.primary,
     backgroundColor: 'transparent',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   backButtonText: {
     color: COLORS.primary,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginLeft: 8,
   },
   chartCard: {
@@ -796,7 +877,7 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 20,
     alignItems: "center",
-    width: '100%',
+    width: "100%",
     minHeight: 350,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
@@ -884,8 +965,8 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   flavorGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginHorizontal: -6,
   },
   flavorChip: {
@@ -950,12 +1031,12 @@ const styles = StyleSheet.create({
     color: "#1A1A1A",
   },
   inputError: {
-    borderColor: '#FF4444',
+    borderColor: "#FF4444",
     borderWidth: 2,
   },
   textArea: {
     height: 120,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   groupContainer: {
     marginVertical: 12,
@@ -990,8 +1071,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   addGroupButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 18,
     paddingVertical: 10,
   },
@@ -1005,8 +1086,8 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   newGroupButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginTop: 12,
     gap: 10,
   },
@@ -1035,15 +1116,14 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   nextButton: {
-    flex: 1,
+    flex: 2,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: COLORS.primary,
     padding: 16,
     borderRadius: 16,
-    marginLeft: 12,
-    shadowColor: "#FF9432",
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -1052,13 +1132,34 @@ const styles = StyleSheet.create({
   nextButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     marginRight: 8,
   },
+  saveButton: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  saveButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    marginLeft: 8,
+  },
   buttonDisabled: {
-    opacity: 0.6,
-    backgroundColor: '#E0E0E0',
+    opacity: 0.5,
+    backgroundColor: '#CCCCCC',
+    borderColor: '#CCCCCC',
     shadowOpacity: 0,
     elevation: 0,
-  },
+  }
 });

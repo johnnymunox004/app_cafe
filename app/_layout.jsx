@@ -15,12 +15,14 @@ export default function RootLayout() {
         backgroundColor="transparent"
         barStyle="dark-content"
       />
-      <Tabs 
+      <Tabs
         tabBar={(props) => <TabBar {...props} />}
         screenOptions={{
           headerStyle: {
             height: Platform.OS === 'ios' ? 90 : 50 + StatusBar.currentHeight,
           },
+          headerTintColor: COLORS.text,
+          headerTitleStyle: { fontWeight: "bold", color: COLORS.text },
           headerTopInsetEnabled: false,
         }}
         screenListeners={{
@@ -32,44 +34,45 @@ export default function RootLayout() {
           },
         }}
       >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          headerStyle: { backgroundColor: "#FFEE58" },
-          headerTintColor: "#000",
-          headerTitleStyle: { fontWeight: "bold" },
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Explore",
-          headerStyle: { backgroundColor: "#FF7043" },
-          headerTintColor: "#FFF",
-          headerTitleStyle: { fontWeight: "bold" },
-        }}
-      />
-      <Tabs.Screen
-        name="(tools)"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Tabs.Screen
-        name="create"
-        options={({ navigation }) => ({
-          title: "Create",
-          tabBarStyle: { display: "none" },
-          headerLeft: () => (
-            <Button
-              title="Back"
-              onPress={() => navigation.goBack()}
-            />
-          ),
-        })}
-      />
-    </Tabs>
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Home",
+            headerStyle: { backgroundColor: COLORS.primaryLight },
+            headerTintColor: COLORS.onPrimary,
+          }}
+        />
+        <Tabs.Screen
+          name="explore"
+          options={{
+            title: "Explore",
+            headerStyle: { backgroundColor: COLORS.primary },
+            headerTintColor: COLORS.onPrimary,
+          }}
+        />
+        <Tabs.Screen
+          name="(tools)"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Tabs.Screen
+          name="create"
+          options={({ navigation }) => ({
+            title: "Create",
+            tabBarStyle: { display: "none" },
+            headerStyle: { backgroundColor: COLORS.primaryDark },
+            headerTintColor: COLORS.onPrimary,
+            headerLeft: () => (
+              <Button
+                title="Back"
+                onPress={() => navigation.goBack()}
+                color={COLORS.onPrimary}
+              />
+            ),
+          })}
+        />
+      </Tabs>
     </View>
   );
 }
