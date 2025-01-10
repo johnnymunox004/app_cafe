@@ -5,7 +5,7 @@
 // export const initializeTensorFlow = async () => {
 //   try {
 //     await tf.ready();
-//     console.log('✅ TensorFlow inicializado correctamente');
+//     //console.log('✅ TensorFlow inicializado correctamente');
 //     await modelManager.loadModel();
 //     return true;
 //   } catch (error) {
@@ -16,7 +16,7 @@
 
 // export const preprocessImage = async (imageTensor) => {
 //   try {
-//     console.log('🔄 Preprocesando imagen...');
+//     //console.log('🔄 Preprocesando imagen...');
 //     const resized = tf.image.resizeBilinear(imageTensor, [224, 224]);
 //     const normalized = resized.div(255.0);
 //     return normalized;
@@ -28,13 +28,13 @@
 
 // export const analyzeColor = async (tensor) => {
 //   try {
-//     console.log('🔄 Analizando color...');
+//     //console.log('🔄 Analizando color...');
 //     const meanColor = tf.mean(tensor, [0, 1]);
 //     const colorValues = await meanColor.array();
     
 //     const brightness = (colorValues[0] + colorValues[1] + colorValues[2]) / 3;
-//     console.log('Valores RGB:', colorValues.map(v => Math.round(v * 255)));
-//     console.log('Brillo detectado:', brightness);
+//     //console.log('Valores RGB:', colorValues.map(v => Math.round(v * 255)));
+//     //console.log('Brillo detectado:', brightness);
     
 //     let roastLevel;
 //     let recommendation;

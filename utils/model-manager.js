@@ -8,7 +8,7 @@
 
 //   async loadModel() {
 //     try {
-//       console.log('🔄 Inicializando análisis de color...');
+//       //console.log('🔄 Inicializando análisis de color...');
 //       // No creamos un modelo complejo, solo retornamos true
 //       // ya que haremos análisis directo de color
 //       return true;

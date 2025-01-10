@@ -253,7 +253,7 @@ export default async function generatePDF(chartUri, { ratings, flavors, info }) 
       </html>
     `;
 
-    console.log('Generando PDF...');
+    //console.log('Generando PDF...');
     const { uri } = await Print.printToFileAsync({
       html,
       base64: false

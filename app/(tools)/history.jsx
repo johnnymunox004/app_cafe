@@ -26,8 +26,8 @@ export default function HistoryScreen() {
       const uniqueGroups = [...new Set(data.map(item => item.group || 'Sin Grupo').filter(Boolean))];
       setGroups(uniqueGroups);
       
-      console.log('Grupos cargados:', uniqueGroups); // Debug
-      console.log('Evaluaciones cargadas:', data); // Debug
+      //console.log('Grupos cargados:', uniqueGroups); // Debug
+      //console.log('Evaluaciones cargadas:', data); // Debug
     } catch (error) {
       console.error('Error al cargar evaluaciones:', error);
     }

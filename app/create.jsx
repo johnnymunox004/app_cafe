@@ -413,7 +413,7 @@ export default function Create() {
       const allGroups = [...new Set(["Favoritos", ...existingGroups])];
       setGroups(allGroups);
 
-      console.log("Grupos cargados:", allGroups); // Debug
+      //console.log("Grupos cargados:", allGroups); // Debug
     } catch (error) {
       console.error("Error al cargar grupos:", error);
     }
@@ -585,7 +585,7 @@ export default function Create() {
       };
 
       await saveEvaluation(evaluationData);
-      console.log("Evaluación guardada exitosamente");
+      //console.log("Evaluación guardada exitosamente");
 
       const htmlContent = `
         <html>
@@ -688,12 +688,12 @@ export default function Create() {
         </html>
       `;
 
-      console.log("Generando PDF...");
+      //console.log("Generando PDF...");
       const { uri } = await Print.printToFileAsync({
         html: htmlContent,
         base64: false,
       });
-      console.log("PDF generado:", uri);
+      //console.log("PDF generado:", uri);
 
       if (!(await Sharing.isAvailableAsync())) {
         Alert.alert("Error", "La función de compartir no está disponible");

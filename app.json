@@ -1,71 +1,28 @@
 {
   "expo": {
-    "name": "expocafeapp",
-    "slug": "expo_cafe_app",
+    "name": "app_cafe",
+    "slug": "app-cafe",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.expo_cafe_app"
-    },
-    "web": {
-      "bundler": "metro",    
-      
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/images/notification-icon.png",
-          "color": "#ffffff"
-        }
-      ],
-      "expo-asset",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "La aplicación necesita acceso a la cámara para analizar los granos de café."
-        }
-      ]
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
-    "build": {
-      "production": {
-        "android": {
-          "buildType": "apk"
-        },
-        "ios": {
-          "buildType": "archive"
-        }
-      }
+      "package": "com.appcafe.cafe"
     },
     "extra": {
       "eas": {
-        "projectId": "727c8216-f4fb-409b-81e5-8dbaab678d81"
+        "projectId": "115800aa-76b1-431f-a0ef-65a85c1e8e07"
       }
     }
   }
